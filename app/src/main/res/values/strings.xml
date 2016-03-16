@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">V2Deme</string>
+
+    <string-array name="audio_devices">
+        <item>EARPIECE</item>
+        <item>SPEAKER_PHONE</item>
+    </string-array>
+</resources>
