@@ -1,5 +1,5 @@
 ## 实时猫 Android SDK V0.2 Demo
-根据 [实时猫 Android SDK](https://shishimao.com) 开发的 Demo
+由 [实时猫 Android SDK](https://shishimao.com) 开发的 Demo
 
 ## 使用
 
@@ -106,13 +106,28 @@ session.connect();
 
 接收到`Sender`对象后，需要增加`Observer`，通过`Observer`监听触发事件。
 以下是`Sender`触发的事件及相应的说明。
-> * `audioLog`：监听`Sender `收到的音频相关日志事件，回调返回日志内容。
-> * `videoLog`：监听`Sender `收到的视频相关日志事件，回调返回日志内容。
-> * `error`：监听`Sender `错误事件，回调返回错误信息。
-> * `close`：监听`Sender `关闭事件。
+> * `audioLog`：监听`Sender`收到的音频相关日志事件，回调返回日志内容。
+> * `videoLog`：监听`Sender`收到的视频相关日志事件，回调返回日志内容。
+> * `error`：监听`Sender`错误事件，回调返回错误信息。
+> * `close`：监听`Sender`关闭事件。
 
 
+### 资源回收
 
+**由于长时间的连接摄像头和处理视频，收造成手机发热和耗电过快的情况，所有在不使用视频或者退出时，必须暂停视频或回收资源。**
+
+以下是在*退出*时必须回收的资源，请按 **<font color=red>顺序</font>** 回收资源
+
+> * 本地视频流 : `localStream.dispose()`
+> * Session: `session.disconnect()`
+> * 本地播放器 : `localVideoPlayer.release()`
+> * 远程播放器 : `remoteVideoPlayer.release()`
+> * RTCat对象 : `cat.release()`
+
+在`Activity`，`onStop`需要暂停本地流, `localStream.stop()` 
+在`Activity`，`onResume`需要继续播放本地流。`localStream.start()`
+
+**注:**在`localStream.stop()`并不释放本地摄像头，只是停止从摄像头获得视频流，如果需要释放本地流需要调用`localStream.dispose()`。`localStream.start()`无需在`localStream.play(..)`的时候调用。
 
 
 
