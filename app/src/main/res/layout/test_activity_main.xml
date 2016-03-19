@@ -34,6 +34,7 @@
         android:id="@+id/video_layout"
         android:layout_width="match_parent"
         android:layout_height="fill_parent">
+        <!-- VideoPlayerLayout 相当于一个 ViewGroup, 用于显示 VideoPlayer,VideoPlayer能被包含在任意的Layout里 -->
         <com.shishimao.sdk.view.VideoPlayerLayout
             android:id="@+id/local_video_layout"
             android:layout_width="wrap_content"

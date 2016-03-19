@@ -67,9 +67,6 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
 
     public String token;
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +103,7 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
 
 
         localStream = cat.createStream();
+        //增加监听事件,监听是摄像头切换事件
         localStream.addObserver(new StreamObserver() {
 
             @Override
@@ -150,7 +148,7 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                     l("token is " + token);
                     session = cat.createSession(token, Session.SessionType.P2P);
 
-                    class SessionHandler implements SessionObserver {
+                    session.addObserver(new SessionObserver() {
                         @Override
                         public void in(String token) {
                             l(token + " is in");
@@ -201,7 +199,7 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                         }
 
                         @Override
-                        public void connected(ArrayList wits) {
+                        public void connected(final ArrayList wits) {
                             l("connected main");
 
                             String wit = "";
@@ -233,78 +231,78 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                         @Override
                         public void remote(final Receiver receiver) {
                             try {
-                                receivers.put(receiver.getId(), receiver);
+                                    receivers.put(receiver.getId(), receiver);
 
-                                receiver.addObserver(new ReceiverObserver() {
-                                    @Override
-                                    public void audioLog(JSONObject jsonObject) {
+                                    receiver.addObserver(new ReceiverObserver() {
+                                        @Override
+                                        public void audioLog(JSONObject jsonObject) {
 
-                                    }
+                                        }
 
-                                    @Override
-                                    public void videoLog(JSONObject jsonObject) {
+                                        @Override
+                                        public void videoLog(JSONObject jsonObject) {
 
-                                    }
+                                        }
 
-                                    @Override
-                                    public void error(Errors errors) {
+                                        @Override
+                                        public void error(Errors errors) {
 
-                                    }
+                                        }
 
-                                    @Override
-                                    public void stream(final Stream stream) {
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                t(receiver.getFrom() + " stream");
-                                                VideoPlayer videoViewRemote = new VideoPlayer(TestMainActivity.this);
-                                                render_list.add(videoViewRemote);
+                                        @Override
+                                        public void stream(final Stream stream) {
+                                            runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    t(receiver.getFrom() + " stream");
+                                                    VideoPlayer videoViewRemote = new VideoPlayer(TestMainActivity.this);
+                                                    render_list.add(videoViewRemote);
 
-                                                cat.initVideoPlayer(videoViewRemote);
+                                                    cat.initVideoPlayer(videoViewRemote);
 
-                                                RelativeLayout layout = (RelativeLayout) findViewById(R.id.video_layout);
-                                                VideoPlayerLayout remote_video_layout = new VideoPlayerLayout(TestMainActivity.this);
+                                                    RelativeLayout layout = (RelativeLayout) findViewById(R.id.video_layout);
+                                                    VideoPlayerLayout remote_video_layout = new VideoPlayerLayout(TestMainActivity.this);
 
-                                                render2_list.put(receiver.getFrom(),remote_video_layout);
+                                                    render2_list.put(receiver.getFrom(),remote_video_layout);
 
-                                                remote_video_layout.addView(videoViewRemote);
+                                                    remote_video_layout.addView(videoViewRemote);
 
-                                                remote_video_layout.setPosition(x,y,layout_width,layout_height);
+                                                    remote_video_layout.setPosition(x,y,layout_width,layout_height);
 
-                                                if( x == 0 && y == 0)
-                                                {
-                                                    x = 50;
-                                                }else if(x == 50 && y == 0)
-                                                {
-                                                    x = 0; y= 50;
+                                                    if( x == 0 && y == 0)
+                                                    {
+                                                        x = 50;
+                                                    }else if(x == 50 && y == 0)
+                                                    {
+                                                        x = 0; y= 50;
+                                                    }
+
+                                                    layout.addView(remote_video_layout);
+
+                                                    stream.play(videoViewRemote);
                                                 }
+                                            });
 
-                                                layout.addView(remote_video_layout);
+                                        }
 
-                                                stream.play(videoViewRemote);
-                                            }
-                                        });
+                                        @Override
+                                        public void message(String message) {
 
-                                    }
+                                        }
 
-                                    @Override
-                                    public void message(String message) {
+                                        @Override
+                                        public void close() {
 
-                                    }
+                                        }
+                                    });
 
-                                    @Override
-                                    public void close() {
+                                    receiver.response();
+                                } catch (Exception e) {
+                                    l(e.toString());
+                                }
 
-                                    }
-                                });
 
-                                receiver.response();
-                            } catch (Exception e) {
-                                l(e.toString());
                             }
-
-
-                        }
 
                         @Override
                         public void local(final Sender sender) {
@@ -344,11 +342,7 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                         public void error(String error) {
 
                         }
-                    }
-
-                    SessionHandler sh = new SessionHandler();
-
-                    session.addObserver(sh);
+                    });
 
                     session.connect();
 
