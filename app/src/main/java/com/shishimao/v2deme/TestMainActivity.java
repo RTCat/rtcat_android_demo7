@@ -235,17 +235,12 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
 
                                     receiver.addObserver(new ReceiverObserver() {
                                         @Override
-                                        public void audioLog(JSONObject jsonObject) {
-
-                                        }
-
-                                        @Override
-                                        public void videoLog(JSONObject jsonObject) {
-
-                                        }
-
-                                        @Override
                                         public void error(Errors errors) {
+
+                                        }
+
+                                        @Override
+                                        public void log(JSONObject jsonObject) {
 
                                         }
 
@@ -308,13 +303,9 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                         public void local(final Sender sender) {
                             senders.put(sender.getId(), sender);
                             sender.addObserver(new SenderObserver() {
-                                @Override
-                                public void videoLog(JSONObject jsonObject) {
-
-                                }
 
                                 @Override
-                                public void audioLog(JSONObject jsonObject) {
+                                public void log(JSONObject jsonObject) {
 
                                 }
 
