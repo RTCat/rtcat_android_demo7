@@ -1,12 +1,12 @@
 ## 实时猫 Android SDK V0.2 Demo
-由 [实时猫 Android SDK](https://shishimao.com) 开发的 Demo
+基于 [实时猫 Android SDK](https://shishimao.com) 开发的样例 Demo
 
 ## 使用
 
 1. `git clone https://github.com/RTCat/rtcat_android_v0.2_demo.git`
 2. 通过Android Studio导入, File > Import Project ,选择项目中的build.gradle文件导入
-3. 在项目中增加权限和jar，so文件（详情参考实时猫Android SDK 文档）
-4. 把`Config.java.backup`改为`Config.java`,并填入从 `实时猫控制台` 获得的 `APIKEY`,`SECRET`,`SESSSION`
+3. 在项目中增加权限和`jar`，`so`文件（详情参考实时猫Android SDK 文档）
+4. 把`Config.java.backup`改为`Config.java`,并填入从 `实时猫控制台` 获得的 `APIKEY`,`SECRET`,`SESSION`
 
 ## 代码说明
 
