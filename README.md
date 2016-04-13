@@ -1,5 +1,5 @@
 ## 实时猫 Android SDK V0.2 Demo
-基于 [实时猫 Android SDK](https://shishimao.com) 开发的样例 Demo
+基于 [实时猫 Android SDK](https://shishimao.com) 开发的样例 Demo，本项目支持实时猫 Android SDK 版本 0.2 以上。
 
 ## 使用
 
