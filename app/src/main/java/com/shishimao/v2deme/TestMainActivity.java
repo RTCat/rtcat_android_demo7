@@ -94,7 +94,7 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
 
 
         try {
-            cat = new RTCat(TestMainActivity.this,true,true,true,false, AppRTCAudioManager.AudioDevice.EARPIECE ,RTCat.CodecSupported.VP8, L.VERBOSE);
+            cat = new RTCat(TestMainActivity.this,true,true,true,false, AppRTCAudioManager.AudioDevice.SPEAKER_PHONE ,RTCat.CodecSupported.VP8, L.VERBOSE);
         }catch (AssertionError e){
             Log.d(TAG,"no such device");
         }
@@ -230,6 +230,7 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
 
                         @Override
                         public void remote(final Receiver receiver) {
+                            l("get receiver");
                             try {
                                     receivers.put(receiver.getId(), receiver);
 
