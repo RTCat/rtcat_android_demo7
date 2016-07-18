@@ -4,7 +4,7 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".test_activity.MainActivity">
+    tools:context=".TestMainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,6 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:onClick="switchCamera"/>
+
         </LinearLayout>
 
 
@@ -32,7 +33,7 @@
 
     <RelativeLayout
         android:id="@+id/video_layout"
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="fill_parent">
         <!-- VideoPlayerLayout 相当于一个 ViewGroup, 用于显示 VideoPlayer,VideoPlayer能被包含在任意的Layout里 -->
         <com.shishimao.sdk.view.VideoPlayerLayout
@@ -41,6 +42,17 @@
             android:layout_height="wrap_content">
             <com.shishimao.sdk.view.VideoPlayer
                 android:id="@+id/local_video_render"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                ></com.shishimao.sdk.view.VideoPlayer>
+        </com.shishimao.sdk.view.VideoPlayerLayout>
+
+        <com.shishimao.sdk.view.VideoPlayerLayout
+            android:id="@+id/remote_video_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <com.shishimao.sdk.view.VideoPlayer
+                android:id="@+id/remote_video_render"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 ></com.shishimao.sdk.view.VideoPlayer>

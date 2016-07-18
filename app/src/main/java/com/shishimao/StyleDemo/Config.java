@@ -1,10 +1,8 @@
-package com.shishimao.v2deme;
+package com.shishimao.StyleDemo;
 
-/**
- * Email : chencong@learning-tech.com
- * Created by chencong on 3/14/16.
- */
+
 public class Config {
+    //TODO
     public final static String APIKEY = "";
     public final static String SECRET = "";
     public final static String SESSION = "";

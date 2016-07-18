@@ -1,4 +1,4 @@
-package com.shishimao.v2deme;
+package com.shishimao.StyleDemo;
 
 import android.app.Activity;
 import android.content.res.Resources;
@@ -7,21 +7,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.shishimao.sdk.Configs;
 import com.shishimao.sdk.Errors;
+import com.shishimao.sdk.LocalStream;
 import com.shishimao.sdk.RTCat;
 import com.shishimao.sdk.Receiver;
 import com.shishimao.sdk.Receiver.ReceiverObserver;
+import com.shishimao.sdk.RemoteStream;
 import com.shishimao.sdk.Sender;
 import com.shishimao.sdk.Sender.SenderObserver;
 import com.shishimao.sdk.Session;
 import com.shishimao.sdk.Session.SessionObserver;
-import com.shishimao.sdk.Stream;
-import com.shishimao.sdk.Stream.StreamObserver;
 import com.shishimao.sdk.apprtc.AppRTCAudioManager;
 import com.shishimao.sdk.http.RTCatRequests;
 import com.shishimao.sdk.tools.L;
@@ -34,38 +33,29 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-/**
- * Created by chencong on 3/2/16.
- */
 public class TestMainActivity extends Activity implements AdapterView.OnItemSelectedListener{
     private final static String TAG  = "TestMainActivity";
 
     ArrayAdapter<CharSequence> adapter;
 
-    VideoPlayerLayout videoRenderLayout;
+    VideoPlayerLayout localRenderLayout;
     VideoPlayer localVideoPlayer;
+    VideoPlayerLayout remoteRenderLayout;
+    VideoPlayer remoteVideoPlayer;
     String[] audio_device_list;
     Spinner spinner;
     Resources res;
 
     //webrtc
     RTCat cat;
-    Stream localStream;
+    LocalStream localStream;
     Session session;
 
     HashMap<String,Sender> senders = new HashMap<>();
     HashMap<String,Receiver> receivers = new HashMap<>();
 
-    ArrayList<VideoPlayer> render_list = new ArrayList<>();
-    HashMap<String,VideoPlayerLayout> render2_list = new HashMap<>();
-
-    int layout_width = 50;
-    int layout_height = 50;
-
-    int x = 0;
-    int y = 0;
-
     public String token;
+    boolean isRemotePlay = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,9 +79,12 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
         //webrtc
 
         localVideoPlayer = (VideoPlayer) findViewById(R.id.local_video_render);
-        videoRenderLayout = (VideoPlayerLayout) findViewById(R.id.local_video_layout);
-        videoRenderLayout.setPosition(50, 50, 50, 50);
+        localRenderLayout = (VideoPlayerLayout) findViewById(R.id.local_video_layout);
+        localRenderLayout.setPosition(0,0,100,100);
 
+        remoteVideoPlayer = (VideoPlayer) findViewById(R.id.remote_video_render);
+        remoteRenderLayout = (VideoPlayerLayout) findViewById(R.id.remote_video_layout);
+        remoteRenderLayout.setPosition(0,0,0,0);
 
         try {
             cat = new RTCat(TestMainActivity.this,true,true,true,false, AppRTCAudioManager.AudioDevice.SPEAKER_PHONE ,RTCat.CodecSupported.VP8, L.VERBOSE);
@@ -102,19 +95,25 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
         cat.initVideoPlayer(localVideoPlayer);
 
 
-        localStream = cat.createStream();
+        localStream = cat.createStream(true,true,15,RTCat.VideoFormat.Lv0, LocalStream.CameraFacing.FRONT);
         //增加监听事件,监听是摄像头切换事件
-        localStream.addObserver(new StreamObserver() {
+        localStream.addObserver(new LocalStream.StreamObserver() {
+            @Override
+            public void error(Errors errors) {
+
+            }
 
             @Override
-            public void afterSwitch(boolean isFrontCamera) {
+            public void afterSwitch(boolean isFrontCamera) {}
 
+            @Override
+            public void accepted() {
+                localStream.play(localVideoPlayer);
+                createSession(null);
             }
         });
 
-        localStream.play(localVideoPlayer);
-
-        createSession(null);
+        localStream.init();
     }
 
     @Override
@@ -154,14 +153,14 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                             l(token + " is in");
                             l(String.valueOf(session.getWits().size()));
 
-                            if (session.getWits().size() < 3)
+                            if (session.getWits().size() == 1)
                             {
                                 JSONObject attr = new JSONObject();
                                 try {
                                     attr.put("type", "main");
                                     attr.put("name", "old wang");
                                 } catch (Exception e) {
-
+                                    e.printStackTrace();
                                 }
 
                                 session.sendTo(localStream,true,attr, token);
@@ -174,26 +173,16 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                         }
 
                         @Override
-                        public void out(String token) {
-                            final VideoPlayerLayout layout =  render2_list.get(token);
-
-                            if( x == 0 && y == 50)
-                            {
-                                x = 50 ; y =0;
-                            }else if(x == 50 && y == 0)
-                            {
-                                x = 0;
-                            }
-
-
+                        public void out(final String token) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if(layout != null)
-                                    {
-                                        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.video_layout);
-                                        relativeLayout.removeView(layout);
-                                    }
+                                    l(token + " is out");
+                                    remoteRenderLayout.setPosition(0,0,0,0);
+                                    localRenderLayout.setPosition(0,0,100,100);
+                                    remoteVideoPlayer.requestLayout();
+                                    remoteVideoPlayer.release();
+                                    isRemotePlay = false;
                                 }
                             });
                         }
@@ -202,21 +191,6 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                         public void connected(final ArrayList wits) {
                             l("connected main");
 
-                            String wit = "";
-                            for (int i = 0; i < wits.size(); i++) {
-                                if( i == 3)
-                                {
-                                    break;
-                                }
-                                try {
-                                    wit = wit + wits.get(i);
-
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-
-
                             JSONObject attr = new JSONObject();
                             try {
                                 attr.put("type", "main");
@@ -224,8 +198,8 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-
-                            session.send(localStream,true,attr);
+                            if(wits.size() == 1)
+                                session.send(localStream,true,attr);
                         }
 
                         @Override
@@ -246,36 +220,20 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                                         }
 
                                         @Override
-                                        public void stream(final Stream stream) {
+                                        public void stream(final RemoteStream stream) {
                                             runOnUiThread(new Runnable() {
                                                 @Override
                                                 public void run() {
+                                                    if(isRemotePlay)
+                                                        return;
                                                     t(receiver.getFrom() + " stream");
-                                                    VideoPlayer videoViewRemote = new VideoPlayer(TestMainActivity.this);
-                                                    render_list.add(videoViewRemote);
-
-                                                    cat.initVideoPlayer(videoViewRemote);
-
-                                                    RelativeLayout layout = (RelativeLayout) findViewById(R.id.video_layout);
-                                                    VideoPlayerLayout remote_video_layout = new VideoPlayerLayout(TestMainActivity.this);
-
-                                                    render2_list.put(receiver.getFrom(),remote_video_layout);
-
-                                                    remote_video_layout.addView(videoViewRemote);
-
-                                                    remote_video_layout.setPosition(x,y,layout_width,layout_height);
-
-                                                    if( x == 0 && y == 0)
-                                                    {
-                                                        x = 50;
-                                                    }else if(x == 50 && y == 0)
-                                                    {
-                                                        x = 0; y= 50;
-                                                    }
-
-                                                    layout.addView(remote_video_layout);
-
-                                                    stream.play(videoViewRemote);
+                                                    cat.initVideoPlayer(remoteVideoPlayer);
+                                                    remoteRenderLayout.setPosition(0,0,100,100);
+                                                    localRenderLayout.setPosition(60,0,40,40);
+                                                    localVideoPlayer.setZOrderMediaOverlay(true);
+                                                    localVideoPlayer.requestLayout();
+                                                    stream.play(remoteVideoPlayer);
+                                                    isRemotePlay = true;
                                                 }
                                             });
 
@@ -381,10 +339,7 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
             localVideoPlayer = null;
         }
 
-        for (VideoPlayer renderer:render_list)
-        {
-            renderer.release();
-        }
+        remoteVideoPlayer.release();
 
         if(cat != null)
         {

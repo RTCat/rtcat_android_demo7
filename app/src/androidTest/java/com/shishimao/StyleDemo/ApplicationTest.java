@@ -1,4 +1,4 @@
-package com.shishimao.v2deme;
+package com.shishimao.StyleDemo;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

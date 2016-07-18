@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">V2Deme</string>
+    <string name="app_name">StyleDemo</string>
 
     <string-array name="audio_devices">
         <item>EARPIECE</item>
