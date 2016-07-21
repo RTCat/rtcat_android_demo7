@@ -30,6 +30,7 @@ import com.shishimao.sdk.view.VideoPlayerLayout;
 import org.json.JSONObject;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -92,9 +93,21 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
             Log.d(TAG,"no such device");
         }
 
+
+
+        cat.addObserver(new RTCat.RTCatObserver() {
+            @Override
+            public void init() {
+                createLocalStream();
+            }
+        });
+
+        cat.init();
+
+    }
+
+    public void createLocalStream(){
         cat.initVideoPlayer(localVideoPlayer);
-
-
         localStream = cat.createStream(true,true,15,RTCat.VideoFormat.Lv0, LocalStream.CameraFacing.FRONT);
         //增加监听事件,监听是摄像头切换事件
         localStream.addObserver(new LocalStream.StreamObserver() {
@@ -220,6 +233,11 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
                                         }
 
                                         @Override
+                                        public void file(File file) {
+
+                                        }
+
+                                        @Override
                                         public void stream(final RemoteStream stream) {
                                             runOnUiThread(new Runnable() {
                                                 @Override
@@ -265,6 +283,16 @@ public class TestMainActivity extends Activity implements AdapterView.OnItemSele
 
                                 @Override
                                 public void log(JSONObject jsonObject) {
+
+                                }
+
+                                @Override
+                                public void fileSending(int i) {
+
+                                }
+
+                                @Override
+                                public void fileFinished() {
 
                                 }
 
